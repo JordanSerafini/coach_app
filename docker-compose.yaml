@@ -1,0 +1,112 @@
+services:
+  # frontend:
+  #   image: node:alpine
+  #   container_name: frontend
+  #   working_dir: /app
+  #   volumes:
+  #     - ./Frontend/Web:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "5173:5173"
+  #   networks:
+  #     - coach_network
+  #   command: sh -c "npm install && npm run dev -- --host"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5173/"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+
+  api_gateway:
+    image: node:alpine
+    container_name: api_gateway
+    working_dir: /app
+    restart: always
+    volumes:
+      - ./Backend/api_gateway:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    networks:
+      - coach_network
+    command: sh -c "npm install && npm run start:dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  authentification_service:
+    image: node:alpine
+    container_name: authentification_service
+    working_dir: /app
+    restart: always
+    volumes:
+      - ./Backend/authentification_service:/app
+      - /app/node_modules
+    ports:
+      - 3001:3001
+    networks:
+      - coach_network
+    command: sh -c "npm install && npm run start:dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      - PG_HOST=192.168.1.10
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DATABASE=coach
+
+  
+
+  postgres:
+    image: postgres:12
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: coach
+    ports:
+      - "5432:5432"
+    networks:
+      - coach_network
+    volumes:
+      - coach_data:/var/lib/postgresql/data
+      - ./Conception/SQL/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Conception/SQL/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "5050:80"
+    networks:
+      - coach_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  coach_network:
+    driver: bridge
+    attachable: true
+
+
+volumes:
+  coach_data:

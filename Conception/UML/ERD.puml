@@ -1,0 +1,90 @@
+-- PUML Diagram (PlantUML for Database Relationships)
+@startuml coach_app
+entity users {
+    * id : INT
+    * role : ENUM('coach', 'client')
+    * first_name : VARCHAR(50)
+    * last_name : VARCHAR(50)
+    * email : VARCHAR(100)
+    * password_hash : VARCHAR(255)
+    * phone_number : VARCHAR(15)
+}
+
+entity courses {
+    * id : INT
+    * coach_id : INT
+    * title : VARCHAR(100)
+    * description : TEXT
+    * max_participants : INT
+    * price : DECIMAL(10,2)
+    * start_time : DATETIME
+    * end_time : DATETIME
+}
+
+entity course_categories {
+    * id : INT
+    * name : VARCHAR(50)
+    * description : TEXT
+}
+
+entity reservations {
+    * id : INT
+    * course_id : INT
+    * client_id : INT
+    * status : ENUM('pending', 'confirmed', 'cancelled')
+}
+
+entity payments {
+    * id : INT
+    * reservation_id : INT
+    * amount : DECIMAL(10,2)
+    * payment_method : ENUM('card', 'paypal', 'bank_transfer')
+}
+
+entity subscriptions {
+    * id : INT
+    * client_id : INT
+    * plan_name : VARCHAR(50)
+    * price : DECIMAL(10,2)
+}
+
+entity reviews {
+    * id : INT
+    * course_id : INT
+    * client_id : INT
+    * rating : TINYINT
+    * comment : TEXT
+}
+
+entity notifications {
+    * id : INT
+    * user_id : INT
+    * message : TEXT
+}
+
+entity course_attachments {
+    * id : INT
+    * course_id : INT
+    * file_url : VARCHAR(255)
+}
+
+entity promo_codes {
+    * id : INT
+    * code : VARCHAR(50)
+}
+
+entity course_history {
+    * id : INT
+    * course_id : INT
+    * change_description : TEXT
+}
+
+users ||--o{ courses : "coach_id"
+courses ||--o| course_categories : "category_id"
+courses ||--o{ reservations : "course_id"
+reservations ||--o| payments : "reservation_id"
+reservations ||--o| reviews : "client_id"
+users ||--o{ subscriptions : "client_id"
+users ||--o{ notifications : "user_id"
+courses ||--o{ course_attachments : "course_id"
+@enduml
