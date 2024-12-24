@@ -1,84 +1,107 @@
--- PUML Diagram (PlantUML for Database Relationships)
 @startuml coach_app
+
 entity users {
-    * id : INT
-    * role : ENUM('coach', 'client')
-    * first_name : VARCHAR(50)
-    * last_name : VARCHAR(50)
-    * email : VARCHAR(100)
-    * password_hash : VARCHAR(255)
+    * id : SERIAL [PK]
+    * role : VARCHAR(10) [NOT NULL]
+    * first_name : VARCHAR(50) [NOT NULL]
+    * last_name : VARCHAR(50) [NOT NULL]
+    * email : VARCHAR(100) [NOT NULL, UNIQUE]
+    * password_hash : VARCHAR(255) [NOT NULL]
     * phone_number : VARCHAR(15)
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
+    * updated_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity courses {
-    * id : INT
-    * coach_id : INT
-    * title : VARCHAR(100)
+    * id : SERIAL [PK]
+    * coach_id : INT [NOT NULL, FK -> users(id)]
+    * category_id : INT [FK -> course_categories(id)]
+    * title : VARCHAR(100) [NOT NULL]
     * description : TEXT
-    * max_participants : INT
-    * price : DECIMAL(10,2)
-    * start_time : DATETIME
-    * end_time : DATETIME
+    * max_participants : INT [NOT NULL]
+    * price : NUMERIC(10,2) [NOT NULL]
+    * start_time : TIMESTAMP [NOT NULL]
+    * end_time : TIMESTAMP [NOT NULL]
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
+    * updated_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity course_categories {
-    * id : INT
-    * name : VARCHAR(50)
+    * id : SERIAL [PK]
+    * name : VARCHAR(50) [NOT NULL, UNIQUE]
     * description : TEXT
 }
 
 entity reservations {
-    * id : INT
-    * course_id : INT
-    * client_id : INT
-    * status : ENUM('pending', 'confirmed', 'cancelled')
+    * id : SERIAL [PK]
+    * course_id : INT [NOT NULL, FK -> courses(id)]
+    * client_id : INT [NOT NULL, FK -> users(id)]
+    * status : VARCHAR(10) [DEFAULT 'pending']
+    * reserved_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity payments {
-    * id : INT
-    * reservation_id : INT
-    * amount : DECIMAL(10,2)
-    * payment_method : ENUM('card', 'paypal', 'bank_transfer')
+    * id : SERIAL [PK]
+    * reservation_id : INT [NOT NULL, FK -> reservations(id)]
+    * amount : NUMERIC(10,2) [NOT NULL]
+    * payment_date : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
+    * payment_method : VARCHAR(20) [NOT NULL]
+    * status : VARCHAR(10) [DEFAULT 'paid']
 }
 
 entity subscriptions {
-    * id : INT
-    * client_id : INT
-    * plan_name : VARCHAR(50)
-    * price : DECIMAL(10,2)
+    * id : SERIAL [PK]
+    * client_id : INT [NOT NULL, FK -> users(id)]
+    * plan_name : VARCHAR(50) [NOT NULL]
+    * price : NUMERIC(10,2) [NOT NULL]
+    * start_date : DATE [NOT NULL]
+    * end_date : DATE [NOT NULL]
+    * status : VARCHAR(10) [DEFAULT 'active']
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity reviews {
-    * id : INT
-    * course_id : INT
-    * client_id : INT
-    * rating : TINYINT
+    * id : SERIAL [PK]
+    * course_id : INT [NOT NULL, FK -> courses(id)]
+    * client_id : INT [NOT NULL, FK -> users(id)]
+    * rating : SMALLINT [CHECK 1-5]
     * comment : TEXT
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity notifications {
-    * id : INT
-    * user_id : INT
-    * message : TEXT
+    * id : SERIAL [PK]
+    * user_id : INT [NOT NULL, FK -> users(id)]
+    * message : TEXT [NOT NULL]
+    * is_read : BOOLEAN [DEFAULT FALSE]
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity course_attachments {
-    * id : INT
-    * course_id : INT
-    * file_url : VARCHAR(255)
+    * id : SERIAL [PK]
+    * course_id : INT [NOT NULL, FK -> courses(id)]
+    * file_url : VARCHAR(255) [NOT NULL]
+    * uploaded_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity promo_codes {
-    * id : INT
-    * code : VARCHAR(50)
+    * id : SERIAL [PK]
+    * code : VARCHAR(50) [NOT NULL, UNIQUE]
+    * discount_percentage : SMALLINT [CHECK 1-100]
+    * valid_from : DATE [NOT NULL]
+    * valid_until : DATE [NOT NULL]
+    * usage_limit : INT
+    * created_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
 entity course_history {
-    * id : INT
-    * course_id : INT
-    * change_description : TEXT
+    * id : SERIAL [PK]
+    * course_id : INT [NOT NULL, FK -> courses(id)]
+    * change_description : TEXT [NOT NULL]
+    * changed_at : TIMESTAMP [DEFAULT CURRENT_TIMESTAMP]
 }
 
+' Relationships
 users ||--o{ courses : "coach_id"
 courses ||--o| course_categories : "category_id"
 courses ||--o{ reservations : "course_id"
@@ -87,4 +110,5 @@ reservations ||--o| reviews : "client_id"
 users ||--o{ subscriptions : "client_id"
 users ||--o{ notifications : "user_id"
 courses ||--o{ course_attachments : "course_id"
+
 @enduml
