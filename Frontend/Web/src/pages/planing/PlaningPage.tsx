@@ -1,6 +1,8 @@
 function PlaningPage() {
   return (
-    <div className="bg-red">PlaningPage</div>
+    <div className="bg-red">
+      
+    </div>
   )
 }
 

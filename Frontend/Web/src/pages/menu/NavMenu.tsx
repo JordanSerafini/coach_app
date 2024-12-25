@@ -19,7 +19,7 @@ function NavMenu() {
   const menuItems = [
     { label: "Home", icon: <FaHome />, value: "Home" },
     { label: "Dashboard", icon: <MdDashboard />, value: "Dashboard" },
-    { label: "Transport", icon: <FaCog />, value: "Transport" },
+    { label: "Planing", icon: <FaCog />, value: "Planing" },
   ];
 
   return (
