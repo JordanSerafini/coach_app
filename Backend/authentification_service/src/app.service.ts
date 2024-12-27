@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Pool } from 'pg';
 import { CustomLogger } from './logging/custom-logger.service';
+import { RegisterDto } from './Dtos/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -92,27 +93,36 @@ export class AuthService {
   }
 
   async register(
+    first_name: string,
+    last_name: string,
     email: string,
     password: string,
-    name: string,
     role: string,
-  ): Promise<any> {
+    phone_number: string,
+    created_at: Date,
+  ): Promise<RegisterDto> {
     this.logger.log(`Registering new user with email: ${email}`);
-    let result;
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
       const query = `
-        INSERT INTO "users" (email, password, name, role)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, email, nom, prenom, role;
+        INSERT INTO "users" ("email", "password", "first_name", "last_name", "role", "phone_number", "created_at")
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *;
       `;
-      result = await this.pool.query(query, [
+      const result = await this.pool.query(query, [
         email,
         hashedPassword,
-        name,
+        first_name,
+        last_name,
         role,
+        phone_number,
+        created_at,
       ]);
+
+      this.logger.log(`User with email: ${email} registered successfully`);
+      return result.rows[0];
     } catch (error) {
       this.logger.error(
         `Database insert failed for email: ${email}`,
@@ -120,9 +130,6 @@ export class AuthService {
       );
       throw new InternalServerErrorException('Database insert failed');
     }
-
-    this.logger.log(`User with email: ${email} registered successfully`);
-    return result.rows[0];
   }
 
   validateToken(token: string): any {

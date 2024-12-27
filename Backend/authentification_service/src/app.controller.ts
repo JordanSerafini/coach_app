@@ -17,18 +17,18 @@ export class AuthController {
     return this.handleLogin(loginDto);
   }
 
-  @Post('register')
-  async register(
-    @Body()
-    registerDto: {
-      email: string;
-      password: string;
-      name: string;
-      role: string;
-    },
-  ) {
-    return this.handleRegister(registerDto);
-  }
+  // @Post('register')
+  // async register(
+  //   @Body()
+  //   registerDto: {
+  //     email: string;
+  //     password: string;
+  //     name: string;
+  //     role: string;
+  //   },
+  // ) {
+  //   return this.handleRegister(registerDto);
+  // }
 
   @Post('validate')
   async validate(@Body() token: { token: string }) {
@@ -51,17 +51,23 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'register' })
   async handleRegister(registerDto: {
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
-    name: string;
     role: string;
+    phone_number: string;
+    created_at: Date;
   }) {
     try {
       const user = await this.authService.register(
+        registerDto.first_name,
+        registerDto.last_name,
         registerDto.email,
         registerDto.password,
-        registerDto.name,
         registerDto.role,
+        registerDto.phone_number,
+        registerDto.created_at,
       );
       return user;
     } catch (error) {

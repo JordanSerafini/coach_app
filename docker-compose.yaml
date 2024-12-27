@@ -61,7 +61,30 @@ services:
       - PG_PASSWORD=postgres
       - PG_DATABASE=coach
 
-  
+  courses_service:
+    image: node:alpine
+    container_name: courses_service
+    working_dir: /app
+    restart: always
+    volumes:
+      - ./Backend/courses_service:/app
+      - /app/node_modules
+    ports:
+      - 3002:3002
+    networks:
+      - coach_network
+    command: sh -c "npm install && npm run start:dev"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/courses/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      - PG_HOST=192.168.1.10
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DATABASE=coach
 
   postgres:
     image: postgres:12

@@ -30,10 +30,13 @@ export class AuthController {
   async register(
     @Body()
     registerDto: {
+      first_name: string;
+      last_name: string;
       email: string;
       password: string;
-      name: string;
       role: string;
+      phone_number: string;
+      created_at: Date;
     },
   ) {
     return this.authServiceClient

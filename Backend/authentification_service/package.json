@@ -30,6 +30,7 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "bcryptjs": "^2.4.3",
+    "class-validator": "^0.14.1",
     "glob": "^9.0.0",
     "lru-cache": "^6.0.0",
     "passport": "^0.7.0",
