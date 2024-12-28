@@ -23,7 +23,7 @@ export class CoursesController {
 
   @Get('health')
   async healthCheck() {
-    return this.coursesServiceClient.send({ cmd: 'health_routes' }, {});
+    return this.coursesServiceClient.send({ cmd: 'health_courses' }, {});
   }
 
   @Get()

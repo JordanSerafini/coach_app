@@ -7,7 +7,7 @@ import { CreateCourseDto, UpdateCourseDto } from 'src/Dtos/courses.dto';
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
-  @MessagePattern({ cmd: 'health_routes' })
+  @MessagePattern({ cmd: 'health_courses' })
   healthCheck() {
     return { status: 'ok' };
   }
